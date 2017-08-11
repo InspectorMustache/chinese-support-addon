@@ -11,10 +11,9 @@
 Download Chinese pronunciations from GoogleTTS
 '''
 
-import urllib
-import urllib2
 import os
 import re
+from gtts.tts import gTTS
 
 from aqt import mw
 
@@ -24,25 +23,13 @@ url_gtts = 'http://translate.google.com/translate_tts?client=t&'
 user_agent_string = 'Mozilla/5.0'
 
 
-def get_word_from_google(source, lang = 'zh'):
+def get_word_from_google(source, lang='zh'):
     filename, fullpath = get_filename("_".join([source, "G", lang]), download_file_extension)
     if os.path.exists(fullpath):
         return filename
-    get_url = build_query_url(source, lang)
-    # This may throw an exception
-    request = urllib2.Request(get_url)
-    request.add_header('User-agent', user_agent_string)
-    response = urllib2.urlopen(request, timeout=5)
-    if 200 != response.code:
-        raise ValueError(str(response.code) + ': ' + response.msg)
-    with open(fullpath, 'wb') as audio_file:
-        audio_file.write(response.read())
+    tts = gTTS(source, lang=lang)
+    tts.save(fullpath)
     return filename
-
-def build_query_url(source, lang):
-    qdict = dict(tl=lang, q=source.encode('utf-8'))
-    return url_gtts + urllib.urlencode(qdict)
-
 
 def get_filename(base, end):
     """Return the media filename for the given title. """
