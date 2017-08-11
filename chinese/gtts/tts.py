@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import re, warnings
-from six.moves import urllib
 from gtts_token import Token
 import urllib2
 
