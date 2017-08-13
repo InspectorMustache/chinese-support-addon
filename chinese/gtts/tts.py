@@ -91,16 +91,16 @@ class gTTS:
 
         # Split text in parts
         if self._len(text) <= self.MAX_CHARS:
-            text_parts = [text]
+            text_parts = [text.encode('utf-8')]
         else:
-            text_parts = self._tokenize(text, self.MAX_CHARS)
+            text_parts = self._tokenize(text, self.MAX_CHARS)           
 
         # Clean
         def strip(x): return x.replace('\n', '').strip()
         text_parts = [strip(x) for x in text_parts]
         text_parts = [x for x in text_parts if len(x) > 0]
         self.text_parts = text_parts
-
+        
         # Google Translate token
         self.token = Token()
 
@@ -131,7 +131,7 @@ class gTTS:
             try:
                 with warnings.catch_warnings():
                     # warnings.filterwarnings("ignore", category=InsecureRequestWarning)
-                    req = urllib2.Request((self.GOOGLE_TTS_URL + params).decode('utf-8'),
+                    req = urllib2.Request((self.GOOGLE_TTS_URL + params),
                                           headers=headers,
                                           unverifiable=True)
                     r = urllib2.urlopen(req)
@@ -148,13 +148,13 @@ class gTTS:
         try:
             # Python 2
             return len(unicode(text))
-        except NameError:
+        except (NameError, UnicodeDecodeError):
             # Python 3
             return len(text)
 
     def _tokenize(self, text, max_size):
         """ Tokenizer on basic punctuation """
-
+        
         punc = "¡!()[]¿?.,،;:—。、：？！\n"
         punc_list = [re.escape(c) for c in punc]
         pattern = '|'.join(punc_list)
@@ -167,8 +167,8 @@ class gTTS:
 
     def _minimize(self, thestring, delim, max_size):
         """ Recursive function that splits `thestring` in chunks
-        of maximum `max_size` chars delimited by `delim`. Returns list. """
-
+        of maximum `max_size` chars delimited by `delim`. Returns list. """ 
+        
         if self._len(thestring) > max_size:
             idx = thestring.rfind(delim, 0, max_size)
             return [thestring[:idx]] + self._minimize(thestring[idx:], delim, max_size)
